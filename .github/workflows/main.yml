@@ -1,22 +1,27 @@
-name: Example workflow for Python using Snyk
-on: push
+name: Test dependencies for security issues with Snyk
+
+on: 
+  push
+
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
-  security:
+  dependencies-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v4
-      - run: pwd
-      - run: ls -lrt
-      - run: pip install -r requirements.txt
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python-3.8@master
-        continue-on-error: true # To make sure that SARIF upload gets called
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk.sarif
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - uses: snyk/actions/setup@master
+    - name: Install Python dependencies with Poetry
+      run: pip3 install -r requirements.txt
+    - name: Test dependencies with Snyk
+      run: snyk test
+      env:
+        SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+    - name: Monitor dependencies for security issues with Snyk
+      run: snyk monitor
+      env:
+        SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
