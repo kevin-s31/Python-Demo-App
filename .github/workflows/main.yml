@@ -15,8 +15,8 @@ jobs:
       with:
         python-version: 3.8
     - uses: snyk/actions/setup@master
-    - name: Install Python dependencies with Poetry
-      run: pip3 install -r requirements.txt
+    - name: Install Python dependencies with Pip
+      run: pip install -r requirements.txt
     - name: Test dependencies with Snyk
       run: snyk test
       env:
